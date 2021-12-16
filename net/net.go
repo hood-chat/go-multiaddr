@@ -387,19 +387,27 @@ func WrapPacketConn(pc net.PacketConn) (PacketConn, error) {
 
 // InterfaceMultiaddrs will return the addresses matching net.InterfaceAddrs
 func InterfaceMultiaddrs() ([]ma.Multiaddr, error) {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return nil, err
-	}
-
-	maddrs := make([]ma.Multiaddr, len(addrs))
-	for i, a := range addrs {
-		maddrs[i], err = FromNetAddr(a)
+	// !!!
+	// TMP: disabled to support Android SDK 30
+	// !!!
+	if false {
+		addrs, err := net.InterfaceAddrs()
 		if err != nil {
 			return nil, err
 		}
+
+		maddrs := make([]ma.Multiaddr, len(addrs))
+		for i, a := range addrs {
+			maddrs[i], err = FromNetAddr(a)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return maddrs, nil
 	}
-	return maddrs, nil
+
+	localhost, _ := FromIP(net.IPv4(127, 0, 0, 1))
+	return []ma.Multiaddr{localhost}, nil
 }
 
 // AddrMatch returns the Multiaddrs that match the protocol stack on addr
