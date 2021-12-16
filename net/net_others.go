@@ -3,25 +3,12 @@
 
 package manet
 
-import (
-	"net"
+import "net"
 
-	ma "github.com/multiformats/go-multiaddr"
-)
+type defaultInterface struct{}
 
-// InterfaceMultiaddrs will return the addresses matching net.InterfaceAddrs
-func InterfaceMultiaddrs() ([]ma.Multiaddr, error) {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return nil, err
-	}
+func (defaultInterface) InterfaceAddrs() ([]net.Addr, error) { return net.InterfaceAddrs() }
 
-	maddrs := make([]ma.Multiaddr, len(addrs))
-	for i, a := range addrs {
-		maddrs[i], err = FromNetAddr(a)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return maddrs, nil
+func getNetDriver() NetDriver {
+	return &defaultInterface{}
 }
