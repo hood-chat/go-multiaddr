@@ -3,14 +3,11 @@
 
 package manet
 
-import (
-	"net"
+type androidInterface struct {}
 
-	ma "github.com/multiformats/go-multiaddr"
-)
+// @FIXME(gfanton): on android sdk30, syscall from `net.InterfaceAddrs()` are restricted, manually return localhost on android
+func (androidInterface) InterfaceAddrs() ([]net.Addr, error) { return net.IPv4(127, 0, 0, 1), nil }
 
-// InterfaceMultiaddrs will return the addresses matching net.InterfaceAddrs
-func InterfaceMultiaddrs() ([]ma.Multiaddr, error) {
-	localhost, _ := FromIP(net.IPv4(127, 0, 0, 1))
-	return []ma.Multiaddr{localhost}, nil
+func getNetDriver() NetDriver {
+	return &androidInterface{}
 }
