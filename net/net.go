@@ -13,6 +13,14 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 )
 
+type NetDriver interface {
+	InterfaceAddrs() ([]net.Addr, error)
+}
+
+var inet NetDriver = getNetDriver()
+
+func SetNetInterface(n NetDriver) { inet = n }
+
 // Conn is the equivalent of a net.Conn object. It is the
 // result of calling the Dial or Listen functions in this
 // package, with associated local and remote Multiaddrs.
@@ -384,6 +392,30 @@ func WrapPacketConn(pc net.PacketConn) (PacketConn, error) {
 		laddr:      laddr,
 	}, nil
 }
+
+// InterfaceMultiaddrs will return the addresses matching net.InterfaceAddrs
+func InterfaceMultiaddrs() ([]ma.Multiaddr, error) {
+	if false {
+		addrs, err := inet.InterfaceAddrs()
+		if err != nil {
+			return nil, err
+		}
+
+		maddrs := make([]ma.Multiaddr, len(addrs))
+		for i, a := range addrs {
+			maddrs[i], err = FromNetAddr(a)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return maddrs, nil
+	}
+
+	localhost, _ := FromIP(net.IPv4(127, 0, 0, 1))
+	return []ma.Multiaddr{localhost}, nil
+}
+
+
 
 // AddrMatch returns the Multiaddrs that match the protocol stack on addr
 func AddrMatch(match ma.Multiaddr, addrs []ma.Multiaddr) []ma.Multiaddr {
