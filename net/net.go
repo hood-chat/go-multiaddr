@@ -395,27 +395,20 @@ func WrapPacketConn(pc net.PacketConn) (PacketConn, error) {
 
 // InterfaceMultiaddrs will return the addresses matching net.InterfaceAddrs
 func InterfaceMultiaddrs() ([]ma.Multiaddr, error) {
-	if false {
-		addrs, err := inet.InterfaceAddrs()
+	addrs, err := inet.InterfaceAddrs()
+	if err != nil {
+		return nil, err
+	}
+
+	maddrs := make([]ma.Multiaddr, len(addrs))
+	for i, a := range addrs {
+		maddrs[i], err = FromNetAddr(a)
 		if err != nil {
 			return nil, err
 		}
-
-		maddrs := make([]ma.Multiaddr, len(addrs))
-		for i, a := range addrs {
-			maddrs[i], err = FromNetAddr(a)
-			if err != nil {
-				return nil, err
-			}
-		}
-		return maddrs, nil
 	}
-
-	localhost, _ := FromIP(net.IPv4(127, 0, 0, 1))
-	return []ma.Multiaddr{localhost}, nil
+	return maddrs, nil
 }
-
-
 
 // AddrMatch returns the Multiaddrs that match the protocol stack on addr
 func AddrMatch(match ma.Multiaddr, addrs []ma.Multiaddr) []ma.Multiaddr {
